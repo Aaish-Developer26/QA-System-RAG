@@ -1,0 +1,5 @@
+1. Command for running the streamlit app:
+- python -m streamlit run StreamlitApp.py
+2. Command for installing requirements.txt:
+- pip install -r requirements.txt
+3. 
