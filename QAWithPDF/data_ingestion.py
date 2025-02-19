@@ -1,29 +1,33 @@
-from llama_index.core import SimpleDirectoryReader
+from llama_index.core import Document
+from pypdf import PdfReader
 import sys
 from exception import customexception
 from logger import logging
 
-def load_data(data):
-    # Doc String
+def load_data(uploaded_file):
     """
-    Load PDF documents from a specified directory.
+    Load and process the uploaded PDF document.
 
     Parameters:
-    - data (str): The path to the directory containing PDF files.
+    - uploaded_file (UploadedFile): The file uploaded via Streamlit.
 
     Returns:
-    - A list of loaded PDF documents. The specific type of documents may vary.
+    - List of llama_index Document objects.
     """
     try:
-        logging.info("data loading started...")
-        loader = SimpleDirectoryReader("Data")
-        documents=loader.load_data()
-        logging.info("data loading completed...")
+        logging.info("Data loading started...")
+        
+        # Read the uploaded PDF file
+        pdf_reader = PdfReader(uploaded_file)
+        text = ""
+        for page in pdf_reader.pages:
+            text += page.extract_text()
+        
+        # Create a llama_index Document object
+        documents = [Document(text=text)]
+        
+        logging.info("Data loading completed...")
         return documents
     except Exception as e:
-        logging.info("exception in loading data...")
-        raise customexception(e,sys)
-
-
-
-    
+        logging.info("Exception in loading data...")
+        raise customexception(e, sys)

@@ -1,26 +1,18 @@
-
 from llama_index.core import VectorStoreIndex
 from llama_index.core import Settings
 from llama_index.llms.gemini import Gemini
-from llama_index.core import StorageContext, load_index_from_storage
 from llama_index.embeddings.gemini import GeminiEmbedding
-
-from QAWithPDF.data_ingestion import load_data
-from QAWithPDF.model_api import load_model
-
 import sys
 from exception import customexception
 from logger import logging
-
 import os
 from dotenv import load_dotenv
-load_dotenv()
 
+load_dotenv()
 
 google_api_key = os.getenv("GOOGLE_API_KEY")
 
-
-model = Gemini(models = 'gemini-pro',api_key=google_api_key)
+model = Gemini(models='gemini-pro', api_key=google_api_key)
 gemini_embed_model = GeminiEmbedding(model_name="models/embedding-001")
 
 # Configure Settings
@@ -29,23 +21,27 @@ Settings.embed_model = gemini_embed_model
 Settings.chunk_size = 800
 Settings.chunk_overlap = 20
 
-def download_gemini_embedding(model,document):
+def download_gemini_embedding(model, document):
     """
-    Downloads and initializes a Gemini Embedding model for vector embeddings.
+    Creates a vector index from the uploaded document and returns a query engine.
+
+    Parameters:
+    - model: The Gemini model.
+    - document: The uploaded document.
 
     Returns:
-    - VectorStoreIndex: An index of vector embeddings for efficient similarity queries.
+    - Query engine for querying the document.
     """
     try:
-        logging.info("")
-        gemini_embed_model = GeminiEmbedding(model_name="models/embedding-001")
-
-        logging.info("")
-        index = VectorStoreIndex.from_documents(document)
-        index.storage_context.persist()
+        logging.info("Creating vector index...")
         
-        logging.info("")
+        # Create index from the document
+        index = VectorStoreIndex.from_documents(document)
+        
+        # Create query engine
         query_engine = index.as_query_engine()
+        
+        logging.info("Query engine created successfully.")
         return query_engine
     except Exception as e:
-        raise customexception(e,sys)
+        raise customexception(e, sys)
